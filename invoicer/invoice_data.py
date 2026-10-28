@@ -36,10 +36,13 @@ class Invoice:
         return self.basic + self.cgst + self.sgst
 
 
-def build_invoice(cfg: dict, bill_no: str, today: date | None = None) -> Invoice:
+def default_invoice_date(cfg: dict) -> date:
+    """Automatic invoice date: the 1st of the current month."""
     tz = ZoneInfo(cfg.get("timezone", "Asia/Kolkata"))
-    today = today or datetime.now(tz).date()
-    bill_date = today.replace(day=1)
+    return datetime.now(tz).date().replace(day=1)
+
+
+def build_invoice(cfg: dict, bill_no: str, bill_date: date) -> Invoice:
 
     # Which month the charges are "for"
     if cfg.get("billing_month", "current") == "previous":

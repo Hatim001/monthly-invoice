@@ -2,11 +2,12 @@
 Remembers the running bill counter in state.json.
 
   counter : last number handed out (only ever goes up, never resets)
-  issued  : {"2026-11": "20261101-001", ...}  one bill number per month
+  issued  : {"2026-11-01": "20261101-001", ...}  auto number given per invoice date
 
-Because each month is recorded, re-running the job in the same month
-(a manual test, a retry after an error) re-uses that month's bill number
-instead of burning a new one.
+Because each date is recorded, re-running for the same invoice date
+(a manual test, a retry after an error) re-uses that bill number
+instead of burning a new one. A bill number typed in by hand is never
+recorded here and never touches the counter.
 """
 import json
 from datetime import date
@@ -31,7 +32,7 @@ def save_state(state: dict) -> None:
 
 def next_bill_no(cfg: dict, state: dict, bill_date: date) -> tuple[str, dict]:
     """Return (bill_no, new_state). Does NOT write anything to disk."""
-    key = f"{bill_date:%Y-%m}"
+    key = bill_date.isoformat()
     if key in state["issued"]:
         return state["issued"][key], state
 

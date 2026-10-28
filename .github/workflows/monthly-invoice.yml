@@ -4,7 +4,18 @@ on:
   schedule:
     # 04:00 UTC on the 1st of every month = 09:30 AM IST
     - cron: "0 4 1 * *"
-  workflow_dispatch:   # lets you press "Run workflow" to test it any time
+  workflow_dispatch:   # "Run workflow" button, with optional overrides
+    inputs:
+      date:
+        description: "Invoice date, YYYY-MM-DD (blank = 1st of this month)"
+        required: false
+        default: ""
+        type: string
+      bill_no:
+        description: "Bill number (blank = auto: date + counter)"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: write      # needed to save the bill counter back to the repo
@@ -17,7 +28,7 @@ jobs:
   send-invoice:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - uses: astral-sh/setup-uv@v6
         with:
@@ -30,7 +41,13 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: uv run main.py
+          INPUT_DATE: ${{ inputs.date }}
+          INPUT_BILL_NO: ${{ inputs.bill_no }}
+        run: |
+          args=()
+          if [ -n "$INPUT_DATE" ]; then args+=(--date "$INPUT_DATE"); fi
+          if [ -n "$INPUT_BILL_NO" ]; then args+=(--bill-no "$INPUT_BILL_NO"); fi
+          uv run main.py "${args[@]}"
 
       - name: Save bill counter
         run: |
