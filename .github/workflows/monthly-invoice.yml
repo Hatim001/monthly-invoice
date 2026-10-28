@@ -1,0 +1,49 @@
+name: Monthly invoice
+
+on:
+  schedule:
+    # 04:00 UTC on the 1st of every month = 09:30 AM IST
+    - cron: "0 4 1 * *"
+  workflow_dispatch:   # lets you press "Run workflow" to test it any time
+
+permissions:
+  contents: write      # needed to save the bill counter back to the repo
+
+concurrency:
+  group: monthly-invoice
+  cancel-in-progress: false
+
+jobs:
+  send-invoice:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Generate invoice and send to Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: uv run main.py
+
+      - name: Save bill counter
+        run: |
+          if ! git diff --quiet state.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add state.json
+            git commit -m "Update bill counter"
+            git push
+          fi
+
+      - name: Keep a copy of the PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: invoice
+          path: output/*.pdf

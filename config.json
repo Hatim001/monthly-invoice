@@ -1,0 +1,23 @@
+{
+  "issuer_name": "ALEFIYA SHABBIR PATRAWALA",
+  "client_name": "M/S. DUROFLEX LIMITED",
+  "client_address_lines": [
+    "Shop No -10, Ganesham , Phase - II,",
+    "Plot No.- D, Pimple Saudagar , Pune - 411 027"
+  ],
+  "account_no": "21",
+  "description_lines": [
+    "Being compensation Charges for the Shop No -10",
+    "Ganesham Commercial, Plot No-D, Pimple Saudagar, Pune -411 027"
+  ],
+  "agreement_line": "As per Leave and Licence agreement executed by us",
+  "hsn_code": "997212",
+  "basic_amount": 68040,
+  "gst_applicable": false,
+  "cgst_percent": 9,
+  "sgst_percent": 9,
+  "billing_month": "current",
+  "timezone": "Asia/Kolkata",
+  "bill_no_format": "{date:%Y%m%d}-{counter:03d}",
+  "counter_start": 1
+}
